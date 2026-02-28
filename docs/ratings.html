@@ -88,10 +88,11 @@
 <body>
 
 <h1>STLGAC Power Ratings</h1>
-<p>Click any column header to sort. The left column shows rank in the current sorting order.</p>
+<p>Click any column header to sort.</p>
 
 <div class="table-wrapper">
-  <table class="sortable counter-table">
+  <!-- Added id="ratings-table" -->
+  <table id="ratings-table" class="sortable counter-table">
     <thead>
       <tr>
         <th class="sorttable_nosort">#</th>
@@ -287,5 +288,30 @@
 
 <!-- sorttable.js should live next to ratings.html (for GitHub Pages: docs/sorttable.js) -->
 <script src="sorttable.js"></script>
+<script>
+  // After page load, auto sort by the "All Co-ed" column, descending
+  window.addEventListener('load', function () {
+    var table = document.getElementById('ratings-table');
+    if (!table || !table.tHead || !table.tHead.rows.length) return;
+
+    var headers = table.tHead.rows[0].cells;
+    var targetIndex = -1;
+
+    // Find the index of the "All Co-ed" header
+    for (var i = 0; i < headers.length; i++) {
+      if (headers[i].textContent.trim() === 'All Co-ed') {
+        targetIndex = i;
+        break;
+      }
+    }
+
+    if (targetIndex === -1) return;
+
+    // sorttable sorts ascending on first click, descending on second.
+    // We want descending (highest power at top), so click twice.
+    headers[targetIndex].click();
+    headers[targetIndex].click();
+  });
+</script>
 </body>
 </html>
