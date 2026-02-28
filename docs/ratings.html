@@ -63,6 +63,12 @@
       background-color: #333333;
     }
 
+    /* Make the header cells for # and Tier use the same dark background */
+    table.sortable thead tr th:nth-child(1),
+    table.sortable thead tr th:nth-child(2) {
+      background-color: rgb(40, 40, 40);
+    }
+
     table.sortable th {
       cursor: pointer;
       user-select: none;
@@ -90,16 +96,32 @@
       content: "▼";
     }
 
+    /* Zebra striping in tbody
+       Darker stripe is rgb(40,40,40) as requested.
+    */
     table.sortable tbody tr:nth-child(odd) {
-      background-color: rgba(255, 255, 255, 0.03);
+      background-color: rgb(40, 40, 40);  /* darker stripe */
     }
 
     table.sortable tbody tr:nth-child(even) {
-      background-color: rgba(255, 255, 255, 0.08);
+      background-color: rgb(60, 60, 60);  /* slightly lighter stripe */
     }
 
     table.sortable tbody tr:hover {
-      background-color: rgba(255, 255, 255, 0.18);
+      background-color: rgb(80, 80, 80);
+    }
+
+    /* Ensure ALL cells in # and Tier columns (1st and 2nd) have
+       background rgb(40,40,40) regardless of zebra or hover.
+    */
+    table.sortable tbody tr td:nth-child(1),
+    table.sortable tbody tr td:nth-child(2) {
+      background-color: rgb(40, 40, 40) !important;
+    }
+
+    table.sortable tbody tr:hover td:nth-child(1),
+    table.sortable tbody tr:hover td:nth-child(2) {
+      background-color: rgb(40, 40, 40) !important;
     }
 
     /* Row numbering in the first column (#) via CSS counter */
@@ -354,7 +376,6 @@
         const rows = Array.from(tbody.rows);
 
         const multiplier = direction === 'asc' ? 1 : -1;
-
         const isNumeric = (type === 'number');
 
         rows.sort((a, b) => {
@@ -381,7 +402,7 @@
             return primaryCompare * multiplier;
           }
 
-          // Tie-break logic
+          // Tie break logic
           if (isNumeric) {
             // For numeric columns:
             //   - descending: second key is Last ascending
@@ -393,8 +414,6 @@
             if (aLast > bLast) return (direction === 'desc') ? 1 : -1;
             return 0;
           } else {
-            // For string columns, just use First name as secondary (optional)
-            // Here we do: Last primary, First secondary when sorting those cols directly.
             return 0;
           }
         });
