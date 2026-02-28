@@ -88,24 +88,27 @@
 <body>
 
 <h1>STLGAC Power Ratings</h1>
-<p>Click any column header to sort.</p>
+<p>Click any column header to sort. The left column shows rank in the current sorting order.</p>
 
 <div class="table-wrapper">
-  <!-- Added id="ratings-table" -->
   <table id="ratings-table" class="sortable counter-table">
     <thead>
       <tr>
+        <!-- # column: no sort -->
         <th class="sorttable_nosort">#</th>
+        <!-- Tier: let sorttable handle if clicked -->
         <th>Tier</th>
+        <!-- First/Last: let sorttable handle -->
         <th>First</th>
         <th>Last</th>
-        <th>All Co-ed</th>
-        <th>Hurling</th>
-        <th>Football</th>
-        <th>Handball</th>
-        <th>All Ladies</th>
-        <th>Camogie</th>
-        <th>Ladies Football</th>
+        <!-- Power columns: custom sorting (mark as no-sort for sorttable) -->
+        <th class="sorttable_nosort power-col" data-col="4">All Co-ed</th>
+        <th class="sorttable_nosort power-col" data-col="5">Hurling</th>
+        <th class="sorttable_nosort power-col" data-col="6">Football</th>
+        <th class="sorttable_nosort power-col" data-col="7">Handball</th>
+        <th class="sorttable_nosort power-col" data-col="8">All Ladies</th>
+        <th class="sorttable_nosort power-col" data-col="9">Camogie</th>
+        <th class="sorttable_nosort power-col" data-col="10">Ladies Football</th>
       </tr>
     </thead>
     <tbody>
@@ -289,28 +292,70 @@
 <!-- sorttable.js should live next to ratings.html (for GitHub Pages: docs/sorttable.js) -->
 <script src="sorttable.js"></script>
 <script>
-  // After page load, auto sort by the "All Co-ed" column, descending
   window.addEventListener('load', function () {
     var table = document.getElementById('ratings-table');
-    if (!table || !table.tHead || !table.tHead.rows.length) return;
+    if (!table) return;
+    var tbody = table.tBodies[0];
+    if (!tbody) return;
 
-    var headers = table.tHead.rows[0].cells;
-    var targetIndex = -1;
+    function sortPowerColumn(colIndex, header) {
+      var rows = Array.prototype.slice.call(tbody.rows);
+      // Toggle direction; default to descending
+      var current = header.dataset.order || 'desc';
+      var direction = current === 'asc' ? 'desc' : 'asc';
+      header.dataset.order = direction;
 
-    // Find the index of the "All Co-ed" header
-    for (var i = 0; i < headers.length; i++) {
-      if (headers[i].textContent.trim() === 'All Co-ed') {
-        targetIndex = i;
-        break;
-      }
+      rows.sort(function (rowA, rowB) {
+        var aText = rowA.cells[colIndex].textContent.trim();
+        var bText = rowB.cells[colIndex].textContent.trim();
+
+        var aVal = parseFloat(aText);
+        var bVal = parseFloat(bText);
+
+        if (isNaN(aVal)) aVal = 0;
+        if (isNaN(bVal)) bVal = 0;
+
+        var aLast = rowA.cells[3].textContent.trim().toLowerCase();
+        var bLast = rowB.cells[3].textContent.trim().toLowerCase();
+
+        if (aVal !== bVal) {
+          // Primary numeric sort
+          return direction === 'desc' ? bVal - aVal : aVal - bVal;
+        }
+
+        // Tie-breaker: Last name
+        // If direction is DESC, Last ASC
+        // If direction is ASC, Last DESC
+        var cmp = aLast.localeCompare(bLast);
+        return direction === 'desc' ? cmp : -cmp;
+      });
+
+      // Re-append rows in new order
+      rows.forEach(function (r) {
+        tbody.appendChild(r);
+      });
     }
 
-    if (targetIndex === -1) return;
+    // Attach handlers to power columns
+    var powerHeaders = table.querySelectorAll('th.power-col');
+    powerHeaders.forEach(function (th) {
+      th.addEventListener('click', function (e) {
+        e.preventDefault();
+        e.stopPropagation(); // prevent sorttable from also sorting
+        var colIndex = parseInt(th.dataset.col, 10);
+        if (!isNaN(colIndex)) {
+          sortPowerColumn(colIndex, th);
+        }
+      });
+    });
 
-    // sorttable sorts ascending on first click, descending on second.
-    // We want descending (highest power at top), so click twice.
-    headers[targetIndex].click();
-    headers[targetIndex].click();
+    // Auto sort by "All Co-ed" column descending on load
+    var allCoedHeader = table.querySelector('th.power-col[data-col="4"]');
+    if (allCoedHeader) {
+      // Ensure first call sorts descending
+      allCoedHeader.dataset.order = 'asc'; // so toggle moves to 'desc'
+      sortPowerColumn(4, allCoedHeader);
+    }
   });
 </script>
 </body>
