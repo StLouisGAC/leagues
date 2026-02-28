@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>STLGAC Power Ratings</title>
+  <style>
+    body { font-family: system-ui, -apple-system, sans-serif; padding: 1.5rem; }
+    table { border-collapse: collapse; width: 100%; }
+    th, td { border: 1px solid #ddd; padding: 0.3rem 0.5rem; }
+    th { cursor: pointer; background: #f0f0f0; }
+    tr:nth-child(even) { background: #fafafa; }
+  </style>
+</head>
+<body>
+
+<h1>STLGAC Power Ratings</h1>
+<p>Click any column header to sort.</p>
+
+<table class="sortable">
+  <thead>
+    <tr>
+      <th>First</th>
+      <th>Last</th>
+      <th>Overall Power</th>
+      <th>Hurling Power</th>
+      <th>Football Power</th>
+      <th>Handball Power</th>
+    </tr>
+  </thead>
+  <tbody>
+    <!-- Example row to verify everything works -->
+    <tr>
+      <td>Jane</td>
+      <td>Doe</td>
+      <td>120.5</td>
+      <td>130.2</td>
+      <td>95.4</td>
+      <td>0.0</td>
+    </tr>
+  </tbody>
+</table>
+
+<script src="sorttable.js"></script>
+</body>
+</html>
